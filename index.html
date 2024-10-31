@@ -1,0 +1,137 @@
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>Treasure Hunt Adventure</title>  
+<style>  
+
+    body{
+        font-family: Arial, sans-serif;  
+        text-align: center;  
+        background-image: url('背景.png');  
+        background-size: cover;  
+        background-position: center;  
+        background-repeat: no-repeat;  
+    }  
+    {  
+        font-family: Arial, sans-serif;  
+        text-align: center;  
+    }  
+    #adventureLog {  
+        margin-top: 20px;  
+        padding: 10px;  
+        max-width: 300px;  
+        height: auto;  
+        text-align: center; /* Changed to center */  
+    }  
+    .step {  
+        margin-top: 10px;  
+        opacity: 0;  
+        transition: opacity 1s;  
+        text-align: center; /* Added to center text */  
+    }  
+    .step.show {  
+        opacity: 1;  
+    }  
+    .image-step {  
+        margin-top: 20px; /* Increased margin for spacing */  
+        display: none;  
+        width: 400px; /* Increased width */  
+        height: 400px; /* Increased height */  
+        background-size: cover;  
+        background-position: center;  
+        margin: 0 auto;  
+    }  
+    #nextButton {  
+        margin-top: 20px;  
+    }  
+</style>  
+</head>  
+<body>  
+<h1>Treasure Hunt Adventure</h1>  
+<div id="adventureLog"></div>  
+<button id="startButton">Start the Adventure</button>  
+<button id="nextButton" disabled>Next</button>  
+  
+<div id="library" class="image-step" style="background-image: url('图书馆.png');"></div>  
+<div id="temple" class="image-step" style="background-image: url('神庙.png');"></div>  
+<div id="puzzle" class="image-step" style="background-image: url('古老的机关.png');"></div>  
+<div id="treasureBox" class="image-step" style="background-image: url('机关.png');"></div>  
+<div id="treasure" class="image-step" style="background-image: url('宝藏.png');"></div>  
+  
+<script>  
+class TreasureMap {  
+    static async getClue(step) {  
+        const clues = [  
+            "在古老的图书馆里找到了第一个线索...",  
+            "解密了古老的线索，指向了一座神庙的位置。",  
+            "在神庙中找到了一个古老的机关。",  
+            "成功解开了机关，找到了一个宝箱！",  
+            "宝箱里藏着的是无价的宝藏！"  
+        ];  
+        return new Promise((resolve) => {  
+            setTimeout(() => {  
+                resolve(clues[step]);  
+            }, 1000);  
+        });  
+    }  
+}  
+  
+let currentStep = 0;  
+const steps = [  
+    { text: '', image: 'library' },  
+    { text: '', image: 'temple' },  
+    { text: '', image: 'puzzle' },  
+    { text: '', image: 'treasureBox' },  
+    { text: '', image: 'treasure' }  
+];  
+  
+function displayAdventureStep(step) {  
+    const adventureLog = document.getElementById('adventureLog');  
+    while (adventureLog.firstChild) {  
+        adventureLog.removeChild(adventureLog.firstChild);  
+    }  
+    const stepElement = document.createElement('div');  
+    stepElement.textContent = step.text;  
+    stepElement.classList.add('step');  
+    adventureLog.appendChild(stepElement);  
+    // Show the step after it's added to the DOM  
+    setTimeout(() => stepElement.classList.add('show'), 10);  
+  
+    // Hide all images before showing the new one  
+    document.querySelectorAll('.image-step').forEach(img => {  
+        img.classList.remove('active'); // Remove active class to hide and reset scaling  
+        img.style.display = 'none';  
+    });  
+  
+    // Display the corresponding image  
+    if (step.image) {  
+        const imageElement = document.getElementById(step.image);  
+        imageElement.style.display = 'block';  
+        imageElement.classList.add('active'); // Add active class to show and scale the image  
+    }  
+}  
+  
+async function loadNextStep() {  
+    if (currentStep < steps.length) {  
+        steps[currentStep].text = await TreasureMap.getClue(currentStep);  
+        displayAdventureStep(steps[currentStep]);  
+        currentStep++;  
+    } else {  
+        // Optionally, reset the adventure or show a final message  
+        document.getElementById('nextButton').disabled = true;  
+        alert("冒险结束！你找到了宝藏！");  
+    }  
+}  
+  
+document.getElementById('startButton').addEventListener('click', async () => {  
+    currentStep = 0;  
+    document.getElementById('nextButton').disabled = false;  
+    await loadNextStep();  
+});  
+  
+document.getElementById('nextButton').addEventListener('click', loadNextStep);  
+</script>  
+</body>  
+</html>
